@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{03f9f0fd-dfc9-4781-8431-3e43f2d92113}</ProjectGuid>
+    <!--$guid1$-->
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>
+    </StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>weather_tests</Name>
+    <RootNamespace>weather_tests</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app_test.lua" />
+    <Compile Include="bmp085_mock.lua" />
+    <Compile Include="bmp180_test.lua" />
+    <Compile Include="config_mock.lua" />
+    <Compile Include="dht22_test.lua" />
+    <Compile Include="dht_mock.lua" />
+    <Compile Include="httprequest_test.lua" />
+    <Compile Include="http_mock.lua" />
+    <Compile Include="lcov.lua" />
+    <Compile Include="lcov_config.lua" />
+    <Compile Include="mqttclient_test.lua" />
+    <Compile Include="mqtt_mock.lua" />
+    <Compile Include="net_mock.lua" />
+    <Compile Include="rtctime_mock.lua" />
+    <Compile Include="run_tests.lua" />
+    <Compile Include="server_mock.lua" />
+    <Compile Include="sntp_mock.lua" />
+    <Compile Include="time_test.lua" />
+    <Compile Include="tmr_mock.lua" />
+    <Compile Include="webserver_test.lua" />
+    <Compile Include="wettercom_test.lua" />
+    <Compile Include="wifi_mock.lua" />
+    <Compile Include="wireless_test.lua" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>
