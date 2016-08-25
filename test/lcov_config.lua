@@ -7,7 +7,7 @@ local M = {}
 -- the shortcut "exe" does not exist the "--exe" file is not
 -- covered (i.e. only other files covered).
 --------------------------------------------------------------------
-M.fileFilter = { "app.lua", "dht22.lua", "bmp180.lua", "httprequest.lua", "mqttclient.lua", "time.lua", "webserver.lua", "wettercom.lua", "wireless.lua" }
+M.fileFilter = { "app.lua", "dht22.lua", "bmp180.lua", "httprequest.lua", "lcdHF44780.lua", "mqttclient.lua", "time.lua", "webserver.lua", "wettercom.lua", "wireless.lua" }
 
 --------------------------------------------------------------------
 -- true indicates M.fileFilter contains FULL paths and that the filter process

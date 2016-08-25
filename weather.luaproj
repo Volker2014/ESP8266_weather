@@ -27,12 +27,17 @@
     <Compile Include="config.lua" />
     <Compile Include="dht22.lua" />
     <Compile Include="httprequest.lua" />
+    <Compile Include="lcdHD44780.lua" />
     <Compile Include="mqttclient.lua" />
     <Compile Include="time.lua" />
     <Compile Include="webserver.lua" />
     <Compile Include="wettercom.lua" />
     <Compile Include="wireless.lua" />
     <Compile Include="_init.lua" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE" />
+    <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
 </Project>

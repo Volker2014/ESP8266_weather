@@ -25,13 +25,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app_test.lua" />
+    <Compile Include="bit_mock.lua" />
     <Compile Include="bmp085_mock.lua" />
     <Compile Include="bmp180_test.lua" />
     <Compile Include="config_mock.lua" />
     <Compile Include="dht22_test.lua" />
     <Compile Include="dht_mock.lua" />
+    <Compile Include="gpio_mock.lua" />
     <Compile Include="httprequest_test.lua" />
     <Compile Include="http_mock.lua" />
+    <Compile Include="lcdHD44780_test.lua" />
     <Compile Include="lcov.lua" />
     <Compile Include="lcov_config.lua" />
     <Compile Include="mqttclient_test.lua" />
@@ -41,6 +44,7 @@
     <Compile Include="run_tests.lua" />
     <Compile Include="server_mock.lua" />
     <Compile Include="sntp_mock.lua" />
+    <Compile Include="table_ext.lua" />
     <Compile Include="time_test.lua" />
     <Compile Include="tmr_mock.lua" />
     <Compile Include="webserver_test.lua" />

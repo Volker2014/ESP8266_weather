@@ -1,2 +1,2 @@
-# ESP8266_weather
+# ESP8266 weather
 log weather to wetter.com

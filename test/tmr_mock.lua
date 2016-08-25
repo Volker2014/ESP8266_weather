@@ -11,4 +11,7 @@ function module.alarm(timer, time, count, callback)
 	callback()
 end
 
+function module.delay(time)
+end
+
 return module
