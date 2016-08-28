@@ -4,7 +4,9 @@ local module = {}
 module.SSID = "your SSID"
 module.PWD = "your password"
 
-module.HOST = "your mqtt server"  
+module.WEBLOGSCRIPT = "your web log script" -- host/folder/file.php
+
+module.MQTTHOST = "your mqtt server"  
 module.PORT = 1883
 module.ID = node.chipid()
 module.INTERVAL = 900 -- seconds

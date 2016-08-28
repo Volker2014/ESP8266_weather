@@ -4,6 +4,7 @@ local module = {}
 oneSecond = 1000
 timerInterval = 1*oneSecond
 timerNo = 6
+weblogscript = nil
 
 function create()
     mqttclient = require("mqttclient")
@@ -29,9 +30,22 @@ end
 
 function setMqtt(offOn)
     if offOn == "on" then
-        mqttclient.start(config.HOST, config.PORT)
+        mqttclient.start(config.MQTTHOST, config.PORT)
     elseif  offOn == "off" then
         mqttclient.stop()
+    end
+end
+
+function setLogscript(script)
+    if script ~= nil then
+        weblogscript = script
+    end
+end
+
+function sendConfig(config, conn)
+    if config ~= nil then
+    print(config)
+        conn:send("Interval: "..(timerInterval/oneSecond)..", Mqtt connected: "..tostring(mqttclient.Connected)..", logscript:"..weblogscript)
     end
 end
 
@@ -43,10 +57,12 @@ end
 
 function module.send_data()  
     dht22.read(config.GPIO)
-    print("Temp: " .. dht22.Temp .. ", Humi: " .. dht22.Humi)
+    print("Date: "..time.now()..", Temp: " .. dht22.Temp .. ", Humi: " .. dht22.Humi)
     publishMqtt()
     wettercom.send(dht22.Temp, dht22.Humi)
-    --http.get("http://"..config.HOST.."/nodemcu/logweather.php?date="..time.now().."&temperature=".. dht22.Temp .. "&humidity=" .. dht22.Humi);
+    if weblogscript ~= nil then
+        http.get("http://"..weblogscript.."?date="..time.now().."&temperature=".. dht22.Temp .. "&humidity=" .. dht22.Humi);
+    end
 end
 
 function module.receiveRequest(conn, request)
@@ -54,13 +70,15 @@ function module.receiveRequest(conn, request)
     if result ~= nil then
         setInterval(result.uri.args["interval"])
         setMqtt(result.uri.args["mqtt"])
+        setLogscript(result.uri.args["logscript"])
+        ignoreSend = sendConfig(result.uri.args["config"], conn)
     end
     module.sendHtml(conn)
 end
 
 function module.sendHtml(conn)
     if (dht22.read(config.GPIO)) then
-        conn:send("Temperature: "..dht22.Temp..", Humidity: "..dht22.Humi)
+        conn:send("Date: "..time.now()..", Temperature: "..dht22.Temp..", Humidity: "..dht22.Humi)
     else
         conn:send("Error: "..dht22.Error)
     end
@@ -69,6 +87,7 @@ end
 function module.start()
     create()
     timerInterval = config.INTERVAL * oneSecond
+    weblogscript = config.WEBLOGSCRIPT;
     webserver.start(module.receiveRequest)
     wettercom.start(config.WETTERCOM)    
     startLoop()

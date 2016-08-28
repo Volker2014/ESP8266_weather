@@ -1,11 +1,13 @@
 -- file : mqttclient.lua
 local module = {}
 
+module.Connected = false
+
 _host = ""
 _port = 0
 
 m = nil
-connected = false
+
 topic = ""
 
 -- Sends my id to the broker for registration
@@ -18,7 +20,7 @@ end
 
 local function mqtt_start() 
     clientId = "ESP8266-" .. config.ID
-    if connected then
+    if module.Connected then
         module.stop()
     end
     m = mqtt.Client(clientId, 120)
@@ -32,7 +34,7 @@ local function mqtt_start()
     -- Connect to broker
     m:connect(_host, _port, 0, 
         function(con) 
-            connected = true
+            module.Connected = true
             print("connected to mqtt broker as " .. clientId)
             register_myself()
         end,
@@ -42,7 +44,7 @@ local function mqtt_start()
 end
 
 function module.publish(topic, data)
-    if connected then
+    if module.Connected then
         m:publish(topic, data, 0, 0)
     end
 end
@@ -54,11 +56,11 @@ function module.start(host, port)
 end
 
 function module.stop()
-    if connected then
+    if module.Connected then
         m:unsubscribe(topic)
         m:close()
         m = nil
-        connected = false
+        module.Connected = false
         print("Mqtt client stopped")
     end
 end

@@ -10,6 +10,6 @@ module.INTERVAL = 1
 module.WETTERCOM = {host="host", id="id", pwd="pwd", sid="sid"}
 
 --needed for mqtt
-module.HOST = "host"
+module.MQTTHOST = "host"
 
 return module
