@@ -5,6 +5,8 @@ module.Connected = false
 
 _host = ""
 _port = 0
+_endpoint = nil
+_id = nil
 
 m = nil
 
@@ -12,14 +14,14 @@ topic = ""
 
 -- Sends my id to the broker for registration
 local function register_myself()  
-    topic = config.ENDPOINT .. config.ID .. "/#"
+    local topic = _endpoint .. _id .. "/#"
     m:subscribe(topic,0,function(conn)
         print("Successfully subscribed to data endpoint")
     end)
 end
 
 local function mqtt_start() 
-    clientId = "ESP8266-" .. config.ID
+    local clientId = "ESP8266-" .. _id
     if module.Connected then
         module.stop()
     end
@@ -49,9 +51,11 @@ function module.publish(topic, data)
     end
 end
 
-function module.start(host, port)
+function module.start(host, port, endpoint, id)
     _host = host
     _port = port
+    _endpoint = endpoint
+    _id = id
     mqtt_start()
 end
 

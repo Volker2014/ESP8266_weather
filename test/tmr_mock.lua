@@ -14,4 +14,7 @@ end
 function module.delay(time)
 end
 
+function module.wdclr()
+end
+
 return module

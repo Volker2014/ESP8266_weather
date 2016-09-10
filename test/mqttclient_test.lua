@@ -1,9 +1,13 @@
+print("==============================")
+print("test mqttclient")
+print("------------------------------")
+
 mqttclient = dofile("./mqttclient.lua")
 
+gpio = dofile("test/gpio_mock.lua")
 mqtt = dofile("test/mqtt_mock.lua")
-config = dofile("test/config_mock.lua")
 
-mqttclient.start("host", 80)
+mqttclient.start("host", 80, "", 1)
 assert(not mqtt.CloseCall)
 assert(mqtt.SubscribeCall)
 

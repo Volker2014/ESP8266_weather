@@ -1,3 +1,7 @@
+print("==============================")
+print("test webserver")
+print("------------------------------")
+
 webserver = dofile("./webserver.lua")
 
 net = dofile("test/net_mock.lua")

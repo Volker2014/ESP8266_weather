@@ -1,4 +1,8 @@
-bmp180 = dofile("bmp180.lua")
+print("==============================")
+print("test bmp180")
+print("------------------------------")
+
+bmp180 = dofile("./bmp180.lua")
 
 bmp085 = dofile("test/bmp085_mock.lua")
 

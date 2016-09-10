@@ -1,6 +1,10 @@
+print("==============================")
+print("test lcdHD44780")
+print("------------------------------")
+
 gpio = dofile("test/gpio_mock.lua")
 
-lcdHD44780 = dofile("lcdHD44780.lua")
+lcdHD44780 = dofile("./lcdHD44780.lua")
 
 bit = dofile("test/bit_mock.lua")
 tmr = dofile("test/tmr_mock.lua")

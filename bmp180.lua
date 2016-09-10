@@ -4,7 +4,7 @@ local module = {}
 oversampling = 1
 
 function module.read()
-    pressure = bmp085.pressure(oversampling)
+    local pressure = bmp085.pressure(oversampling)
     return string.format("%d.%02d", pressure / 100, pressure % 100)
 end
 

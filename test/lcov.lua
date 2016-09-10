@@ -453,7 +453,7 @@ local function covHandler( callType, linenum )
 
         -- This is the FULL path of the filename
         local fullFilename = string.match(dbgInfo.source, "^@(.*)")
-        -- This is JUST the filename
+        -- This is JUST the filename0
         local origFilename = string.match(fullFilename, ".*[/\\@](.*)$")
 
         if origFilename == g_execFilename then
@@ -470,11 +470,12 @@ local function covHandler( callType, linenum )
             if (g_fullPathFilter == true  and g_fileFilter[fullFilename] == nil) or
                (g_fullPathFilter == false and g_fileFilter[origFilename] == nil) then
                 -- File should not be covered
+                --print("not covered: "..fullFilename)
                 return
             end
         end
 
-        local destFilename = g_localStoreDir..origFilename.."."..LCOV_EXT
+        local destFilename = g_localStoreDir..fullFilename.."."..LCOV_EXT
 
         local oldStatsFp    = nil
         local openMode      = "w"

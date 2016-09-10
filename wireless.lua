@@ -2,7 +2,6 @@
 local module = {}
 
 startFunc = nil
-ssidList = nil
 wait_timer = 1
 
 local function wifi_wait_ip()  
@@ -28,29 +27,6 @@ local function connect(key, pwd)
     wifi.sta.config(key, pwd)
     wifi.sta.connect()
     tmr.alarm(wait_timer, 2500, 1, wifi_wait_ip)
-end
-
-local function wifi_start(list_aps)
-    if ssidList == nil then
-        print("SSID list is empty")
-    elseif list_aps then
-        for key,value in pairs(list_aps) do
-            if ssidList[key] then
-                connect(key, ssidList[key])
-            else
-                print("Key " .. key .. " is not in SSID list")
-            end
-        end
-    else
-        print("Error getting AP list")
-    end
-end
-
-function module.start(start_func, ssid_list)
-    startFunc = start_func
-    ssidList = ssid_list
-    print("Configuring Wifi ...")
-    wifi.sta.getap(wifi_start)
 end
 
 function module.start(start_func, ssid, pwd)

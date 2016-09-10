@@ -1,3 +1,7 @@
+print("==============================")
+print("test app")
+print("------------------------------")
+
 app = dofile("./app.lua")
 time = dofile("./time.lua")
 
@@ -8,9 +12,15 @@ dht = dofile("test/dht_mock.lua")
 rtctime = dofile("test/rtctime_mock.lua")
 http = dofile("test/http_mock.lua")
 mqtt = dofile("test/mqtt_mock.lua")
+ow = dofile("test/ow_mock.lua")
 
 dht.Status = dht.OK
 
+interval = 1
+wettercom = {host="host", id="id", pwd="pwd", sid="sid"}
+script = "script"
+
+app.init(interval, script, wettercom)
 app.start()
 
 assert(net.Server.SendCall)

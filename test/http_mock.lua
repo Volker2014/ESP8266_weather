@@ -5,7 +5,9 @@ module.GetCall = false
 
 function module.get(call, headers, callBack)
     module.GetCall = true
-    callBack("code", "data")
+    if callBack ~= nil then
+        callBack("code", "data")
+    end
 end
 
 return module

@@ -3,10 +3,12 @@ local module = {}
 
 module.Temp = 0
 module.Humi = 0
-module.Error = nil
+module.Error = ""
 
-function module.read(pin)
-    status, temp, humi, temp_dec, humi_dec = dht.read(pin)
+_datapin = nil
+
+function module.read()
+    local status, temp, humi, temp_dec, humi_dec = dht.read(_datapin)
     if status == dht.OK then
         module.Error = nil
         module.Temp = temp.."."..temp_dec
@@ -21,6 +23,10 @@ function module.read(pin)
         print( module.Error )
         return false
     end
+end
+
+function module.init(datapin)
+    _datapin = datapin
 end
 
 return module

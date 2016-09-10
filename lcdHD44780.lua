@@ -108,7 +108,7 @@ function module.init(lcd)
 end
 
 function module.setText(text, line)
-  message = text:sub(1, _lcd.maxLen)
+  local message = text:sub(1, _lcd.maxLen)
   message = message .. string.rep(" ", _lcd.maxLen - #message)
 
   writeByte(line, LCD_CMD)

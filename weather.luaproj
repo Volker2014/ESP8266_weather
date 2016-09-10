@@ -26,6 +26,7 @@
     <Compile Include="bmp180.lua" />
     <Compile Include="config.lua" />
     <Compile Include="dht22.lua" />
+    <Compile Include="ds18b20.lua" />
     <Compile Include="httprequest.lua" />
     <Compile Include="lcdHD44780.lua" />
     <Compile Include="mqttclient.lua" />

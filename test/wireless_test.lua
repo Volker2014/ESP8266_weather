@@ -1,3 +1,7 @@
+print("==============================")
+print("test wireless")
+print("------------------------------")
+
 wireless = dofile("./wireless.lua")
 time = dofile("./time.lua")
 

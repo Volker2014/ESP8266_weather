@@ -4,10 +4,19 @@ local module = {}
 _httpPrefix = ""
 
 function module.send(temp, humi)
-    httpCall =  _httpPrefix ..
+    local httpCall =  _httpPrefix ..
         "&dtutc=" .. time.now() ..
         "&te=" .. temp ..
         "&hu=" .. humi;
+    http.get(httpCall, nil, function(code, data)
+            print("Wetter: "..code, data)
+        end);
+end
+
+function module.send2(temp)
+    local httpCall =  _httpPrefix ..
+        "&dtutc=" .. time.now() ..
+        "&teo=" .. temp;
     http.get(httpCall, nil, function(code, data)
             print("Wetter: "..code, data)
         end);

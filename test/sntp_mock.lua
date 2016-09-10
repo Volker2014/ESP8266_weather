@@ -2,9 +2,10 @@
 local module = {}
 
 module.Time = 0
+module.CorrectUrl = true
 
 function module.sync(url, successFunc, errorFunc)
-	if url ~= nil then
+	if module.CorrectUrl then
         rtctime.Time = module.Time
 		successFunc(module.Time, 0, "server")
 	else

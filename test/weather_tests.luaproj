@@ -28,9 +28,9 @@
     <Compile Include="bit_mock.lua" />
     <Compile Include="bmp085_mock.lua" />
     <Compile Include="bmp180_test.lua" />
-    <Compile Include="config_mock.lua" />
     <Compile Include="dht22_test.lua" />
     <Compile Include="dht_mock.lua" />
+    <Compile Include="ds18b20_test.lua" />
     <Compile Include="gpio_mock.lua" />
     <Compile Include="httprequest_test.lua" />
     <Compile Include="http_mock.lua" />
@@ -40,6 +40,7 @@
     <Compile Include="mqttclient_test.lua" />
     <Compile Include="mqtt_mock.lua" />
     <Compile Include="net_mock.lua" />
+    <Compile Include="ow_mock.lua" />
     <Compile Include="rtctime_mock.lua" />
     <Compile Include="run_tests.lua" />
     <Compile Include="server_mock.lua" />
