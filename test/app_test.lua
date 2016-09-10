@@ -13,6 +13,7 @@ rtctime = dofile("test/rtctime_mock.lua")
 http = dofile("test/http_mock.lua")
 mqtt = dofile("test/mqtt_mock.lua")
 ow = dofile("test/ow_mock.lua")
+bmp085 = dofile("test/bmp085_mock.lua")
 
 dht.Status = dht.OK
 

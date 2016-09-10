@@ -13,7 +13,10 @@ module.INTERVAL = 900 -- seconds
 
 module.ENDPOINT = "nodemcu/"
 
-module.GPIO = 4 -- IO pin for DHT22
+module.PINDHT22 = 4 -- IO pin for DHT22
+module.PIND18B120 = 5 -- IO pin for D18B20
+module.PINDATABMP180 = 7 -- IO pin for BMP180 data
+module.PINCLOCKBMP180 = 6 -- IO pin for BMP180 clock
 
 module.WETTERCOM = {}
 module.WETTERCOM["id"] = "your id"

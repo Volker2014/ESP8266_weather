@@ -22,6 +22,16 @@ function module.send2(temp)
         end);
 end
 
+function module.send3(temp, pressure)
+    local httpCall =  _httpPrefix ..
+        "&dtutc=" .. time.now() ..
+        "&tei=" .. temp ..
+        "&pr=" .. pressure;
+    http.get(httpCall, nil, function(code, data)
+            print("Wetter: "..code, data)
+        end);
+end
+
 function module.start(apiAccess)
     _httpPrefix = apiAccess["host"] .. 
                     "?id="..  apiAccess["id"] ..

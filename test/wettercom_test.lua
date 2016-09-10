@@ -17,6 +17,10 @@ http.GetCall = false
 wettercom.send2(20)
 assert(http.GetCall)
 
+http.GetCall = false
+wettercom.send3(20, 1000)
+assert(http.GetCall)
+
 wettercom = nil
 time = nil
 http = nil

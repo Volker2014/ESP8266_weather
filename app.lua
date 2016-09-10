@@ -76,9 +76,10 @@ print(data.name,data.filename,data.content)
 end
 
 function module.send_data()  
-    validDht22 = dht22.read(config.GPIO)
+    validDht22 = dht22.read()
     validDs18b20 = ds18b20.read()
-    print("Date: " .. time.now() .. ", Temp: " .. dht22.Temp .. ", Humi: " .. dht22.Humi .. ", Pooltemp: " .. ds18b20.Temp)
+    validBmp180 = bmp180.read()
+    print("Date: " .. time.now() .. ", Temp: " .. dht22.Temp .. ", Humi: " .. dht22.Humi .. ", Pooltemp: " .. ds18b20.Temp..", Boxtemp: "..bmp180.Temp..", Pressure: "..bmp180.Pressure)
     publishMqtt()
     if validDht22 then
         wettercom.send(dht22.Temp, dht22.Humi)
@@ -86,8 +87,11 @@ function module.send_data()
     if validDs18b20 then
         wettercom.send2(ds18b20.Temp)
     end
+    if validBmp180 then
+        wettercom.send3(bmp180.Temp, bmp180.Pressure)
+    end
     if weblogscript ~= nil then
-        http.get("http://"..weblogscript.."?date="..time.now().."&temperature=".. dht22.Temp .. "&humidity=" .. dht22.Humi .. "&pooltemp=" .. ds18b20.Temp);
+        http.get("http://"..weblogscript.."?date="..time.now().."&temperature=".. dht22.Temp .. "&humidity=" .. dht22.Humi .. "&pooltemp=" .. ds18b20.Temp .. "&boxtemp=" .. bmp180.Temp .. "&pressure=" .. bmp180.Pressure);
     end
 end
 
@@ -123,7 +127,9 @@ function module.start()
     create()
     webserver.start(module.receiveRequest)
     wettercom.start(_wettercom)
-    dht22.init(config.GPIO)   
+    dht22.init(config.PINDHT22)  
+    ds18b20.init(config.PIND18B120)
+    bmp180.init(config.PINDATABMP180, config.PINCLOCKBMP180)
     startLoop()
 end
 
