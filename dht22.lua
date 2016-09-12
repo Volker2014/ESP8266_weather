@@ -3,7 +3,7 @@ local module = {}
 
 module.Temp = 0
 module.Humi = 0
-module.Error = ""
+module.Error = nil
 
 _datapin = nil
 
@@ -15,14 +15,21 @@ function module.read()
         module.Humi = humi.."."..humi_dec
         return true
     elseif status == dht.ERROR_CHECKSUM then
-        module.Error = "DHT Checksum error."
+        module.Error = "DHT Checksum error"
         print( module.Error )
         return false
     elseif status == dht.ERROR_TIMEOUT then
-        module.Error = "DHT timed out."
+        module.Error = "DHT timed out"
         print( module.Error )
         return false
     end
+end
+
+function module.message(format)
+    if module.Error ~= nil then
+        return module.Error
+    end
+    return string.format(format, module.Temp, module.Humi) 
 end
 
 function module.init(datapin)

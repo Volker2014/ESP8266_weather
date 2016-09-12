@@ -2,7 +2,7 @@
 local module = {}
 
 module.Temp = 0
-module.Error = ""
+module.Error = nil
 
 _datapin = nil
 
@@ -20,6 +20,7 @@ function getAddr()
 end
 
 function module.read()
+    module.Error = nil
     addr = getAddr()
     if addr == nil then
         module.Error = "no DS180B20 available"
@@ -64,6 +65,13 @@ function module.read()
     temp = temp * factor
     module.Temp = temp  / 10000
     return true
+end
+
+function module.message(format)
+    if module.Error ~= nil then
+        return module.Error
+    end
+    return string.format(format, module.Temp) 
 end
 
 function module.init(datapin)

@@ -11,9 +11,10 @@ module.ConfigCall = false
 module.ConnectCall = false
 module.Key = nil
 module.Pwd = nil
+module.Ip = nil
 
 function module.getip()
-	return "ip"
+	return module.Ip
 end
 
 function module.getap()

@@ -40,6 +40,7 @@
     <Compile Include="mqttclient_test.lua" />
     <Compile Include="mqtt_mock.lua" />
     <Compile Include="net_mock.lua" />
+    <Compile Include="node_mock.lua" />
     <Compile Include="ow_mock.lua" />
     <Compile Include="rtctime_mock.lua" />
     <Compile Include="run_tests.lua" />

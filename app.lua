@@ -23,6 +23,10 @@ function startLoop()
     tmr.alarm(timerNo, timerInterval, 1, module.send_data)
 end
 
+function checkNode(nodeId)
+    return nodeId == tostring(node.chipid())
+end
+
 function setInterval(interval)
     if interval ~= nil then
         timerInterval = interval * oneSecond
@@ -59,6 +63,8 @@ function publishMqtt()
         mqttclient.publish(config.ENDPOINT .. "temp", dht22.Temp)
         mqttclient.publish(config.ENDPOINT .. "humi", dht22.Humi)
         mqttclient.publish(config.ENDPOINT .. "pooltemp", ds18b20.Temp)
+        mqttclient.publish(config.ENDPOINT .. "boxtemp", bmp180.Temp)
+        mqttclient.publish(config.ENDPOINT .. "pressure", bmp180.Pressure)
     end
 end
 
@@ -79,19 +85,23 @@ function module.send_data()
     validDht22 = dht22.read()
     validDs18b20 = ds18b20.read()
     validBmp180 = bmp180.read()
-    print("Date: " .. time.now() .. ", Temp: " .. dht22.Temp .. ", Humi: " .. dht22.Humi .. ", Pooltemp: " .. ds18b20.Temp..", Boxtemp: "..bmp180.Temp..", Pressure: "..bmp180.Pressure)
+    message = ""
     publishMqtt()
     if validDht22 then
+        message = message .. dht22.message("&temperature=%s&humidity=%s")
         wettercom.send(dht22.Temp, dht22.Humi)
     end
     if validDs18b20 then
+        message = message .. ds18b20.message("&pooltemp=%s")
         wettercom.send2(ds18b20.Temp)
     end
     if validBmp180 then
+        message = message .. bmp180.message("&boxtemp=%s&pressure=%s")
         wettercom.send3(bmp180.Temp, bmp180.Pressure)
     end
-    if weblogscript ~= nil then
-        http.get("http://"..weblogscript.."?date="..time.now().."&temperature=".. dht22.Temp .. "&humidity=" .. dht22.Humi .. "&pooltemp=" .. ds18b20.Temp .. "&boxtemp=" .. bmp180.Temp .. "&pressure=" .. bmp180.Pressure);
+    --print("Date: " .. time.now() .. message)
+    if weblogscript ~= nil and message ~= "" then
+        http.get("http://"..weblogscript.."?date="..time.now() .. message);
     end
 end
 
@@ -99,10 +109,12 @@ function module.receiveRequest(conn, request)
     result = httprequest.parse(request, uploadBoundary)
     if result ~= nil then
         if result.method == "GET" then
-            setInterval(result.uri.args["interval"])
-            setMqtt(result.uri.args["mqtt"])
-            setLogscript(result.uri.args["logscript"])
-            ignoreSend = sendConfig(result.uri.args["config"], conn)
+            if checkNode(result.uri.args["node"]) then
+                setInterval(result.uri.args["interval"])
+                setMqtt(result.uri.args["mqtt"])
+                setLogscript(result.uri.args["logscript"])
+                ignoreSend = sendConfig(result.uri.args["config"], conn)
+            end
         elseif result.method == "POST" then
             data = result.getRequestData()
             uploadBoundary = data
@@ -116,11 +128,14 @@ function module.receiveRequest(conn, request)
 end
 
 function module.sendHtml(conn)
-    if (dht22.read() or ds18b20.read()) then
-        conn:send("Date: "..time.now()..", Temperature: "..dht22.Temp..", Humidity: "..dht22.Humi..",Pooltemp: "..ds18b20.Temp)
-    else
-        conn:send("Error: Dht22 - "..dht22.Error..", Ds18B20 - "..ds18b20.Error)
-    end
+    local message = "Date: "..time.now()
+    dht22.read()
+    message = message .. dht22.message(", Temperature: %s, Humidity: %s")
+    ds18b20.read()
+    message = message .. ds18b20.message(", Pooltemp: %s")
+    bmp180.read()
+    message = message .. bmp180.message(", BoxTemperature: %s, Pressure: %s")
+    conn:send(message)
 end
 
 function module.start()
