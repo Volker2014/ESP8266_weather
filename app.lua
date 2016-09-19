@@ -116,8 +116,10 @@ function module.receiveRequest(conn, request)
                 ignoreSend = sendConfig(result.uri.args["config"], conn)
             end
         elseif result.method == "POST" then
-            data = result.getRequestData()
-            uploadBoundary = data
+            if checkNode(result.uri.args["node"]) then
+                data = result.getRequestData()
+                uploadBoundary = data
+            end
         elseif uploadBoundary ~= nil then
             data = result.getRequestData()
             writeFile(data)
@@ -130,11 +132,11 @@ end
 function module.sendHtml(conn)
     local message = "Date: "..time.now()
     dht22.read()
-    message = message .. dht22.message(", Temperature: %s, Humidity: %s")
+    message = message .. ", " .. dht22.message("Temperature: %s, Humidity: %s")
     ds18b20.read()
-    message = message .. ds18b20.message(", Pooltemp: %s")
+    message = message .. ", " .. ds18b20.message("Pooltemp: %s")
     bmp180.read()
-    message = message .. bmp180.message(", BoxTemperature: %s, Pressure: %s")
+    message = message .. ", " .. bmp180.message("BoxTemperature: %s, Pressure: %s")
     conn:send(message)
 end
 

@@ -5,6 +5,8 @@ module.Temp = 0
 module.Error = nil
 
 _datapin = nil
+_searchCount = 100
+_dividend = 10000
 
 function getAddr()
     ow.setup(_datapin)
@@ -14,7 +16,7 @@ function getAddr()
       count = count + 1
       addr = ow.search(_datapin)
       tmr.wdclr()
-    until (addr ~= nil) or (count > 100)
+    until (addr ~= nil) or (count > _searchCount)
     ow.reset_search(_datapin)
     return addr
 end
@@ -63,7 +65,7 @@ function module.read()
         temp = temp - 65536
     end
     temp = temp * factor
-    module.Temp = temp  / 10000
+    module.Temp = string.format("%d.%01d", temp / _dividend, (temp % _dividend)/100)    
     return true
 end
 
