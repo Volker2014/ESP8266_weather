@@ -17,4 +17,4 @@ dofile("test/lcdHD44780_test.lua")
 
 profi:stop()
 profi:checkMemory()
-profi:writeReport("profiling.txt")
+profi:writeReport("cov/profiling.txt")

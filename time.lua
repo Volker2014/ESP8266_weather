@@ -3,10 +3,9 @@ local module = {}
 
 function module.now()
     local tm = rtctime.epoch2cal(rtctime.get())
-    local timestamp = string.format("%04d%02d%02d%02d%02d%02d", 
+    return string.format("%04d%02d%02d%02d%02d%02d", 
             tm["year"], tm["mon"], tm["day"], 
             tm["hour"], tm["min"], tm["sec"])
-    return timestamp
 end
 
 function module.sync()

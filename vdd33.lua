@@ -1,9 +1,6 @@
 -- file : vdd33.lua
 local module = {}
 
-module.Vdd = ""
-module.Error = nil
-
 local _dividend = 1000
 
 function module.init()
@@ -16,13 +13,10 @@ end
 function module.read(format)
     local vdd = adc.readvdd33()
     if vdd ~= 65535 then
-        module.Error = nil
-        module.Vdd = string.format("%d.%d", vdd / _dividend, vdd % _dividend)
-        return true, module.Vdd, string.format(format, module.Vdd)
+        vdd = string.format("%d.%d", vdd / _dividend, vdd % _dividend)
+        return true, vdd, string.format(format, vdd)
     end
-    module.Error = "adc not initialized for VDD33"
-    module.Vdd = ""
-    return false, nil, module.Error
+    return false, nil, "adc not initialized for VDD33"
 end
 
 return module

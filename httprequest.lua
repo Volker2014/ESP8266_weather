@@ -5,30 +5,22 @@
 
 local module = {}
 
-local function hex_to_char(x)
-  return string.char(tonumber(x, 16))
-end
-
-local function uri_decode(input)
-  return input:gsub("%+", " "):gsub("%%(%x%x)", hex_to_char)
-end
-
 local function parseArgs(args, pattern)
    local r = {}
    if args == nil or args == "" then return r end
    for arg in args:gmatch("([^&]+)") do
       local name, value = arg:match("(.*)=[\"]*(.*)[\"]*")
       if name ~= nil then 
-        r[name] = uri_decode(value) 
+        r[name] = value:gsub("%+", " "):gsub("%%(%x%x)", 
+                                            function (x)
+                                                return string.char(tonumber(x, 16))
+                                            end) 
         --print("Parsed: " .. name .. " => " .. value)
     end
    end
    return r
 end
 
-local function parseFormData(body)
-    return parseArgs(body, "%s*&?([^=]+=[^&]+)")
-end
 
 local function parseBoundaryFormData(payload, content, boundary)
    local dispoStart = payload:find("Content-Disposition", 1, true)
@@ -59,11 +51,8 @@ local function getRequestData(payload, boundary)
          --print("mimeType = [" .. mimeType .. "]")
          --print("bodyStart = [" .. bodyStart .. "]")
          --print("body = [" .. body .. "]")
-         if mimeType == "application/json" then
-            --print("JSON: " .. body)
-            requestData = cjson.decode(body)
-         elseif mimeType == "application/x-www-form-urlencoded" then
-            requestData = parseFormData(body)
+         if mimeType == "application/x-www-form-urlencoded" then
+            requestData = parseArgs(body, "%s*&?([^=]+=[^&]+)")
          elseif mimeType == "multipart/form-data" then
            requestData = payload:match("Content%-Type: multipart/form%-data; boundary=([%w/-]+)")
            --print("boundary: ["..requestData.."]")
@@ -122,11 +111,10 @@ function module.parse(request, boundary)
    local e = request:find("\r\n", 1, true)
    if not e then return nil end
    local line = request:sub(1, e - 1)
-   local r = {}
-   _, i, r.method, r.request = line:find("^([A-Z]+) (.-) HTTP/[1-9]+.[0-9]+$")
-   r.uri = parseUri(r.request)
-   r.getRequestData = getRequestData(request, boundary)
-   return r
+   local _, i, method, request = line:find("^([A-Z]+) (.-) HTTP/[1-9]+.[0-9]+$")
+   local uri = parseUri(request)
+   local getRequestData = getRequestData(request, boundary)
+   return method, uri, getRequestData
 end
 
 return module

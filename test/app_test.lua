@@ -34,12 +34,14 @@ dht.TempDec = 4
 dht.Humi = 50
 dht.humiDec = 2
 
-interval = 1
-wettercom = {host="host", id="id", pwd="pwd", sid="sid"}
-script = "script"
+local interval = 1
+local wettercom = {host="host", id="id", pwd="pwd", sid="sid"}
+local script = "script"
+local mqttData = {host = "your mqtt server", port = 1883, id = 0, endpoint = "nodemcu/"}
+local datapins = {DHT22 = 4, D18B120 = 5, DATABMP180 = 7, CLOCKBMP180 = 6}
 
-app.init(interval, script, wettercom)
-app.start(true, false)
+app.init(interval, datapins, script, wettercom, mqttData)
+app.start(true, true)
 
 assert(net.Server.SendCall)
 assert(net.Server.CloseCall)

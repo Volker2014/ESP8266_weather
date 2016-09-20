@@ -6,17 +6,19 @@ module.PWD = "your password"
 
 module.WEBLOGSCRIPT = "your web log script" -- host/folder/file.php
 
-module.MQTTHOST = "your mqtt server"  
-module.PORT = 1883
-module.ID = node.chipid()
+module.MQTT = {}
+module.MQTT["host"] = "your mqtt server"  
+module.MQTT["port"] = 1883
+module.MQTT["id"] = node.chipid()
+module.MQTT["endpoint"] = "nodemcu/"
+
 module.INTERVAL = 900 -- seconds
 
-module.ENDPOINT = "nodemcu/"
-
-module.PINDHT22 = 4 -- IO pin for DHT22
-module.PIND18B120 = 5 -- IO pin for D18B20
-module.PINDATABMP180 = 7 -- IO pin for BMP180 data
-module.PINCLOCKBMP180 = 6 -- IO pin for BMP180 clock
+module.DATAPINS = {}
+module.DATAPINS["DHT22"] = 6 -- IO pin for DHT22
+module.DATAPINS["D18B120"] = 7 -- IO pin for D18B20
+module.DATAPINS["DATABMP180"] = 5 -- IO pin for BMP180 data
+module.DATAPINS["CLOCKBMP180"] = 4 -- IO pin for BMP180 clock
 
 module.WETTERCOM = {}
 module.WETTERCOM["id"] = "your id"
