@@ -58,13 +58,12 @@ end
 
 local function setLogscript(script)
     if script ~= nil then
-        weblogscript = script
+        _weblogscript = script
     end
 end
 
 local function sendConfig(config, conn)
     if config ~= nil then
-        --print(config)
         local message = "Interval: "..(_timerInterval/_oneSecond)
         if _mqttclient ~= nil then
             message = message .. ", Mqtt connected: " .. tostring(_mqttclient.Connected)
@@ -76,7 +75,7 @@ local function sendConfig(config, conn)
         else
             message = message .. ", Wetter.com: off"
         end
-        message = message .. ", logscript:" .. _weblogscript
+        message = message .. ", logscript: " .. _weblogscript
         conn:send(message)
         return true
     end
@@ -102,34 +101,35 @@ function module.send_data()
     local valid_bmp180, bmp180Temp, bmp180Pressure, bmp180Message = _bmp180.read("&boxtemp=%s&pressure=%s")
     local valid_Vdd33, vdd33Vdd, vdd33Message = vdd33.read("&vdd=%s")
     local message = ""
+    local wetterValues = {}
     if valid_dht22 then
         message = message .. dht22Message
-        if _wettercom ~= nil then
-            _wettercom.send(dht22Temp, dht22Humi)
-        end
+        wetterValues["te"] = dht22Temp
+        wetterValues["hu"] = dht22Humi
     end
     if valid_ds18b20 then
         message = message .. ds18b20Message
-        if _wettercom ~= nil then
-            _wettercom.send2(ds18b20Temp)
-        end
+        wetterValues["teo"] = ds18b20Temp
     end
     if valid_bmp180 then
         message = message .. bmp180Message
-        if _wettercom ~= nil then
-            _wettercom.send3(bmp180Temp, bmp180Pressure)
-        end
+        wetterValues["tei"] = bmp180Temp
+        wetterValues["pr"] = bmp180Pressure
     end
     if valid_Vdd33 then
         message = message .. vdd33Message
     end
-    --print("Date: " .. time.now() .. message)
+    --print(tostring(_weblogscript) .. ", Date: " .. time.now() .. message)
     if message == "" then
         return
     end
 
     if _weblogscript ~= nil then
         http.get("http://".._weblogscript.."?date="..time.now() .. message);
+    end
+
+    if _wettercom ~= nil then
+        _wettercom.send(wetterValues)
     end
 
     if _mqttclient ~= nil then
@@ -151,7 +151,7 @@ function module.receiveRequest(conn, request)
             if checkNode(uri.args["node"]) then
                 setInterval(uri.args["interval"])
                 setMqtt(uri.args["mqtt"])
-                setWettercom(uri.args["_wettercom"])
+                setWettercom(uri.args["wettercom"])
                 setLogscript(uri.args["logscript"])
                 ignoreSend = sendConfig(uri.args["config"], conn)
             end
@@ -185,6 +185,7 @@ function module.sendHtml(conn)
     message = message .. ", " .. ds18b20Message
     message = message .. ", " .. bmp180Message
     message = message .. ", " .. vdd33Message
+    message = message .. ", Heap: " .. node.heap()
     conn:send(message)
     message = nil
     collectgarbage()

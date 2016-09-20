@@ -1,10 +1,10 @@
 -- file : http_mock.lua
 local module = {}
 
-module.GetCall = false
+module.Call = nil
 
 function module.get(call, headers, callBack)
-    module.GetCall = true
+    module.Call = call
     if callBack ~= nil then
         callBack("code", "data")
     end

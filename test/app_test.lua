@@ -45,7 +45,7 @@ app.start(true, true)
 
 assert(net.Server.SendCall)
 assert(net.Server.CloseCall)
-assert(http.GetCall)
+assert(http.Call)
 assert(tmr.StopCall)
 
 net.Server.SendCall = false

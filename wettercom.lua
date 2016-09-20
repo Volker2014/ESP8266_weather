@@ -3,33 +3,14 @@ local module = {}
 
 local _httpPrefix = ""
 
-function module.send(temp, humi)
-    local httpCall =  _httpPrefix ..
-        "&dtutc=" .. time.now() ..
-        "&te=" .. temp ..
-        "&hu=" .. humi;
+function module.send(values)
+    local httpCall =  _httpPrefix .. "&dtutc=" .. time.now()
+    for key, value in pairs(values) do
+        httpCall = httpCall .. "&" .. key .. "=" .. value
+    end
     http.get(httpCall, nil, function(code, data)
             print("Wetter: "..code, data)
-        end);
-end
-
-function module.send2(temp)
-    local httpCall =  _httpPrefix ..
-        "&dtutc=" .. time.now() ..
-        "&teo=" .. temp;
-    http.get(httpCall, nil, function(code, data)
-            print("Wetter: "..code, data)
-        end);
-end
-
-function module.send3(temp, pressure)
-    local httpCall =  _httpPrefix ..
-        "&dtutc=" .. time.now() ..
-        "&tei=" .. temp ..
-        "&pr=" .. pressure;
-    http.get(httpCall, nil, function(code, data)
-            print("Wetter: "..code, data)
-        end);
+        end)
 end
 
 function module.start(apiAccess)

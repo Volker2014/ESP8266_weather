@@ -10,16 +10,8 @@ rtctime = dofile("test/rtctime_mock.lua")
 
 wettercom.start({host="host", id="id", pwd="pwd", sid="sid"})
 
-wettercom.send(20, 10)
-assert(http.GetCall)
-
-http.GetCall = false
-wettercom.send2(20)
-assert(http.GetCall)
-
-http.GetCall = false
-wettercom.send3(20, 1000)
-assert(http.GetCall)
+wettercom.send({te=1,hu=2,teo=3,tei=4,pr=5})
+assert(http.Call == "host?id=id&pwd=pwd&sid=sid&dtutc=00010203040500&te=1&pr=5&teo=3&tei=4&hu=2")
 
 wettercom = nil
 time = nil
