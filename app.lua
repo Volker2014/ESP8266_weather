@@ -1,74 +1,87 @@
 -- file : app.lua
 local module = {}  
 
-oneSecond = 1000
-timerInterval = 1*oneSecond
-timerNo = 6
-weblogscript = nil
-uploadBoundary = nil
-_wettercom = nil
+local _oneSecond = 1000
+local _timerInterval = 1*_oneSecond
+local _timerNo = 6
+local _weblogscript = nil
+local _uploadBoundary = nil
+local _wettercomData = nil
 
-function create()
-    webserver = require("webserver")
-    httprequest = require("httprequest")
-    wettercom = require("wettercom")
-    dht22 = require("dht22")
-    bmp180 = require("bmp180")
-    ds18b20 = require("ds18b20")
+local _webserver = nil
+local _httprequest = nil
+local _dht22 = nil
+local _bmp180 = nil
+local _ds18b20 = nil
+local _mqttclient = nil
+local _wettercom = nil
+
+local function startLoop()
+    tmr.stop(_timerNo)
+    --print("Timer interval (ms): " .. _timerInterval)
+    tmr.alarm(_timerNo, _timerInterval, 1, module.send_data)
 end
 
-function startLoop()
-    tmr.stop(timerNo)
-    print("Timer interval (ms): " .. timerInterval)
-    tmr.alarm(timerNo, timerInterval, 1, module.send_data)
-end
-
-function checkNode(nodeId)
+local function checkNode(nodeId)
     return nodeId == tostring(node.chipid())
 end
 
-function setInterval(interval)
+local function setInterval(interval)
     if interval ~= nil then
-        timerInterval = interval * oneSecond
+        _timerInterval = interval * _oneSecond
         startLoop()
     end
 end
 
-function setMqtt(offOn)
+local function setMqtt(offOn)
     if offOn == "on" then
-        mqttclient = require("mqttclient")
-        mqttclient.start(config.MQTTHOST, config.PORT, config.ENDPOINT, config.ID)
-    elseif  offOn == "off" and mqttclient ~= nil then
-        mqttclient.stop()
-        mqttclient = nil
+        _mqttclient = require("mqttclient")
+        _mqttclient.start(config.MQTTHOST, config.PORT, config.ENDPOINT, config.ID)
+    elseif  offOn == "off" and _mqttclient ~= nil then
+        _mqttclient.stop()
+        _mqttclient = nil
+        collectgarbage()
     end
 end
 
-function setLogscript(script)
+local function setWettercom(offOn)
+    if offOn == "on" then
+        _wettercom = require("wettercom")
+        _wettercom.start(_wettercomData)
+    elseif  offOn == "off" and _wettercom ~= nil then
+        _wettercom = nil
+        collectgarbage()
+    end
+end
+
+local function setLogscript(script)
     if script ~= nil then
         weblogscript = script
     end
 end
 
-function sendConfig(config, conn)
+local function sendConfig(config, conn)
     if config ~= nil then
-    print(config)
-        conn:send("Interval: "..(timerInterval/oneSecond)..", Mqtt connected: "..tostring(mqttclient.Connected)..", logscript:"..weblogscript)
+        --print(config)
+        local message = "Interval: "..(_timerInterval/_oneSecond)
+        if _mqttclient ~= nil then
+            message = message .. ", Mqtt connected: " .. tostring(_mqttclient.Connected)
+        else
+            message = message .. ", Mqtt off"
+        end
+        if _wettercom ~= nil then
+            message = message .. ", Wetter.com: on"
+        else
+            message = message .. ", Wetter.com: off"
+        end
+        message = message .. ", logscript:" .. _weblogscript
+        conn:send(message)
+        return true
     end
+    return false
 end
 
-function publishMqtt()
-    if mqttclient ~= nil then
-        mqttclient.publish(config.ENDPOINT .. "id", config.ID)
-        mqttclient.publish(config.ENDPOINT .. "temp", dht22.Temp)
-        mqttclient.publish(config.ENDPOINT .. "humi", dht22.Humi)
-        mqttclient.publish(config.ENDPOINT .. "pooltemp", ds18b20.Temp)
-        mqttclient.publish(config.ENDPOINT .. "boxtemp", bmp180.Temp)
-        mqttclient.publish(config.ENDPOINT .. "pressure", bmp180.Pressure)
-    end
-end
-
-function writeFile(data)
+local function writeFile(data)
 print(data.name,data.filename,data.content)
     if data.name ~= "upload" or 
        data.filename == nil or 
@@ -82,78 +95,120 @@ print(data.name,data.filename,data.content)
 end
 
 function module.send_data()  
-    validDht22 = dht22.read()
-    validDs18b20 = ds18b20.read()
-    validBmp180 = bmp180.read()
-    message = ""
-    publishMqtt()
-    if validDht22 then
-        message = message .. dht22.message("&temperature=%s&humidity=%s")
-        wettercom.send(dht22.Temp, dht22.Humi)
+    local valid_dht22, dht22Temp, dht22Humi, dht22Message = _dht22.read("&temperature=%s&humidity=%s")
+    local valid_ds18b20, ds18b20Temp, ds18b20Message = _ds18b20.read("&pooltemp=%s")
+    local valid_bmp180, bmp180Temp, bmp180Pressure, bmp180Message = _bmp180.read("&boxtemp=%s&pressure=%s")
+    local valid_Vdd33, vdd33Vdd, vdd33Message = vdd33.read("&vdd=%s")
+    local message = ""
+    if valid_dht22 then
+        message = message .. dht22Message
+        if _wettercom ~= nil then
+            _wettercom.send(dht22Temp, dht22Humi)
+        end
     end
-    if validDs18b20 then
-        message = message .. ds18b20.message("&pooltemp=%s")
-        wettercom.send2(ds18b20.Temp)
+    if valid_ds18b20 then
+        message = message .. ds18b20Message
+        if _wettercom ~= nil then
+            _wettercom.send2(ds18b20Temp)
+        end
     end
-    if validBmp180 then
-        message = message .. bmp180.message("&boxtemp=%s&pressure=%s")
-        wettercom.send3(bmp180.Temp, bmp180.Pressure)
+    if valid_bmp180 then
+        message = message .. bmp180Message
+        if _wettercom ~= nil then
+            _wettercom.send3(bmp180Temp, bmp180Pressure)
+        end
+    end
+    if valid_Vdd33 then
+        message = message .. vdd33Message
     end
     --print("Date: " .. time.now() .. message)
-    if weblogscript ~= nil and message ~= "" then
-        http.get("http://"..weblogscript.."?date="..time.now() .. message);
+    if message == "" then
+        return
+    end
+
+    if _weblogscript ~= nil then
+        http.get("http://".._weblogscript.."?date="..time.now() .. message);
+    end
+
+    if _mqttclient ~= nil then
+        _mqttclient.publish(config.ENDPOINT .. "id", config.ID)
+        _mqttclient.publish(config.ENDPOINT .. "temp", dht22Temp)
+        _mqttclient.publish(config.ENDPOINT .. "humi", dht22Humi)
+        _mqttclient.publish(config.ENDPOINT .. "pooltemp", ds18b20Temp)
+        _mqttclient.publish(config.ENDPOINT .. "boxtemp", bmp180Temp)
+        _mqttclient.publish(config.ENDPOINT .. "pressure", bmp180Pressure)
+        _mqttclient.publish(config.ENDPOINT .. "vdd", vdd33Vdd)
     end
 end
 
 function module.receiveRequest(conn, request)
-    result = httprequest.parse(request, uploadBoundary)
+    local result = _httprequest.parse(request, _uploadBoundary)
+    local ignoreSend = false
     if result ~= nil then
         if result.method == "GET" then
             if checkNode(result.uri.args["node"]) then
                 setInterval(result.uri.args["interval"])
                 setMqtt(result.uri.args["mqtt"])
+                setWettercom(result.uri.args["_wettercom"])
                 setLogscript(result.uri.args["logscript"])
                 ignoreSend = sendConfig(result.uri.args["config"], conn)
             end
         elseif result.method == "POST" then
             if checkNode(result.uri.args["node"]) then
-                data = result.getRequestData()
-                uploadBoundary = data
+                _uploadBoundary = result.getRequestData()
             end
-        elseif uploadBoundary ~= nil then
-            data = result.getRequestData()
+        elseif _uploadBoundary ~= nil then
+            local data = result.getRequestData()
             writeFile(data)
-            uploadBoundary = nil
+            _uploadBoundary = nil
         end
     end
-    module.sendHtml(conn)
+    if not ignoreSend then
+        module.sendHtml(conn)
+    end
 end
 
 function module.sendHtml(conn)
+    local valid_dht22, dht22Temp, dht22Hmui, dht22Message = _dht22.read("Temperature: %s, Humidity: %s")
+    local valid_ds18b20, ds18b20Temp, ds18b20Message = _ds18b20.read("Pooltemp: %s")
+    local valid_bmp180, bmp180Temp, bmp180Pressure, bmp180Message = _bmp180.read("BoxTemperature: %s, Pressure: %s")
+    local valid_Vdd33, vdd33Vdd, vdd33Message = vdd33.read("Vdd: %s")
     local message = "Date: "..time.now()
-    dht22.read()
-    message = message .. ", " .. dht22.message("Temperature: %s, Humidity: %s")
-    ds18b20.read()
-    message = message .. ", " .. ds18b20.message("Pooltemp: %s")
-    bmp180.read()
-    message = message .. ", " .. bmp180.message("BoxTemperature: %s, Pressure: %s")
+    message = message .. ", " .. dht22Message
+    message = message .. ", " .. ds18b20Message
+    message = message .. ", " .. bmp180Message
+    message = message .. ", " .. vdd33Message
     conn:send(message)
+    message = nil
+    collectgarbage()
 end
 
-function module.start()
-    create()
-    webserver.start(module.receiveRequest)
-    wettercom.start(_wettercom)
-    dht22.init(config.PINDHT22)  
-    ds18b20.init(config.PIND18B120)
-    bmp180.init(config.PINDATABMP180, config.PINCLOCKBMP180)
+function module.start(wettercomOn, mqttOn)
+    _webserver = requireFile("webserver")
+    _httprequest = requireFile("httprequest")
+    _dht22 = requireFile("dht22")
+    _bmp180 = requireFile("bmp180")
+    _ds18b20 = requireFile("ds18b20")
+
+    if wettercomOn then
+        setWettercom("on")
+    end
+    if mqttOn then
+        setMqtt("on")
+    end
+
+    _webserver.start(module.receiveRequest)
+    _dht22.init(config.PINDHT22)  
+    _ds18b20.init(config.PIND18B120)
+    _bmp180.init(config.PINDATABMP180, config.PINCLOCKBMP180)
+
     startLoop()
 end
 
-function module.init(interval, script, wettercom)
-    timerInterval = interval * oneSecond
+function module.init(interval, script, wettercomData)
+    _timerInterval = interval * _oneSecond
     setLogscript(script)
-    _wettercom = wettercom
+    _wettercomData = wettercomData
 end
 
 return module  

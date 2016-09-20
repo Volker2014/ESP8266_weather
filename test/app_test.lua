@@ -2,10 +2,22 @@ print("==============================")
 print("test app")
 print("------------------------------")
 
+tracememory = true
+
+function requireFile(file)
+    result = require(file)
+    if tracememory then
+        print("require " .. file .. ", heap: " .. node.heap())
+    end
+    return result
+end
+
 app = dofile("./app.lua")
 time = dofile("./time.lua")
+vdd33 = dofile("./vdd33.lua")
 
 config = dofile("test/config_mock.lua")
+adc = dofile("test/adc_mock.lua")
 tmr = dofile("test/tmr_mock.lua")
 net = dofile("test/net_mock.lua")
 dht = dofile("test/dht_mock.lua")
@@ -27,7 +39,7 @@ wettercom = {host="host", id="id", pwd="pwd", sid="sid"}
 script = "script"
 
 app.init(interval, script, wettercom)
-app.start()
+app.start(true, false)
 
 assert(net.Server.SendCall)
 assert(net.Server.CloseCall)
@@ -54,3 +66,5 @@ rtctime = nil
 http = nil
 mqtt = nil
 node = nil
+vdd33 = nil
+adc = nil

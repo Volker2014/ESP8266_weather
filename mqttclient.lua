@@ -3,19 +3,19 @@ local module = {}
 
 module.Connected = false
 
-_host = ""
-_port = 0
-_endpoint = nil
-_id = nil
+local _host = ""
+local _port = 0
+local _endpoint = nil
+local _id = nil
 
-m = nil
+local _m = nil
 
-topic = ""
+local _topic = ""
 
 -- Sends my id to the broker for registration
 local function register_myself()  
-    local topic = _endpoint .. _id .. "/#"
-    m:subscribe(topic,0,function(conn)
+    local _topic = _endpoint .. _id .. "/#"
+    _m:subscribe(_topic,0,function(conn)
         print("Successfully subscribed to data endpoint")
     end)
 end
@@ -25,16 +25,16 @@ local function mqtt_start()
     if module.Connected then
         module.stop()
     end
-    m = mqtt.Client(clientId, 120)
+    _m = mqtt.Client(clientId, 120)
     -- register message callback beforehand
-    m:on("message", function(conn, topic, data) 
+    _m:on("message", function(conn, _topic, data) 
       if data ~= nil then
-        print(topic .. ": " .. data)
+        print(_topic .. ": " .. data)
         -- do something, we have received a message
       end
     end)
     -- Connect to broker
-    m:connect(_host, _port, 0, 
+    _m:connect(_host, _port, 0, 
         function(con) 
             module.Connected = true
             print("connected to mqtt broker as " .. clientId)
@@ -45,9 +45,9 @@ local function mqtt_start()
         end) 
 end
 
-function module.publish(topic, data)
+function module.publish(_topic, data)
     if module.Connected then
-        m:publish(topic, data, 0, 0)
+        _m:publish(_topic, data, 0, 0)
     end
 end
 
@@ -61,9 +61,9 @@ end
 
 function module.stop()
     if module.Connected then
-        m:unsubscribe(topic)
-        m:close()
-        m = nil
+        _m:unsubscribe(_topic)
+        _m:close()
+        _m = nil
         module.Connected = false
         print("Mqtt client stopped")
     end

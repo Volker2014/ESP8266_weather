@@ -10,15 +10,17 @@ bmp180.init(1, 2)
 assert(bmp085.InitCall)
 
 bmp085.Pressure = -1
-assert(bmp180.read() == false)
-assert(bmp180.message("%d,%d") == "Bmp180 not available")
+local valid,temp,pressure,message = bmp180.read("%s,%s")
+assert(valid == false)
+assert(message == "Bmp180 not available")
 
 bmp085.Pressure = 101
 bmp085.Temp = 201
-assert(bmp180.read() == true)
-assert(bmp180.Pressure == "1.01")
-assert(bmp180.Temp == "20.1")
-assert(bmp180.message("%s,%s") == "20.1,1.01")
+valid,temp,pressure,message = bmp180.read("%s,%s")
+assert(valid)
+assert(pressure == "1.01")
+assert(temp == "20.1")
+assert(message == "20.1,1.01")
 
 bmp180 = nil
 bmp085 = nil

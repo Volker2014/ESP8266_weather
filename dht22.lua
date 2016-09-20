@@ -1,35 +1,20 @@
 -- file : dht22.lua
 local module = {}
 
-module.Temp = 0
-module.Humi = 0
-module.Error = nil
+local _datapin = nil
 
-_datapin = nil
-
-function module.read()
+function module.read(format)
     local status, temp, humi, temp_dec, humi_dec = dht.read(_datapin)
     if status == dht.OK then
-        module.Error = nil
-        module.Temp = temp.."."..temp_dec
-        module.Humi = humi.."."..humi_dec
-        return true
+        temp = temp.."."..temp_dec
+        humi = humi.."."..humi_dec
+        return true, temp, humi, string.format(format, temp, humi)
     elseif status == dht.ERROR_CHECKSUM then
-        module.Error = "DHT Checksum error"
-        print( module.Error )
-        return false
+        return false, nil, nil, "DHT Checksum error"
     elseif status == dht.ERROR_TIMEOUT then
-        module.Error = "DHT timed out"
-        print( module.Error )
-        return false
+        return false, nil, nil, "DHT timed out"
     end
-end
-
-function module.message(format)
-    if module.Error ~= nil then
-        return module.Error
-    end
-    return string.format(format, module.Temp, module.Humi) 
+    return false, nil, nil, "unknown status: " .. status
 end
 
 function module.init(datapin)

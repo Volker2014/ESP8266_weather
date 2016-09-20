@@ -31,6 +31,7 @@
     <Compile Include="lcdHD44780.lua" />
     <Compile Include="mqttclient.lua" />
     <Compile Include="time.lua" />
+    <Compile Include="vdd33.lua" />
     <Compile Include="webserver.lua" />
     <Compile Include="wettercom.lua" />
     <Compile Include="wireless.lua" />

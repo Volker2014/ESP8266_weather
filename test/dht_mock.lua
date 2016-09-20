@@ -12,7 +12,10 @@ module.Humi = 0
 module.HumiDec = 0
 
 function module.read(pin)
-	return module.Status, module.Temp, module.Humi, module.TempDec, module.HumiDec
+    if pin ~= nil then
+        return module.Status, module.Temp, module.Humi, module.TempDec, module.HumiDec
+    end
+    return 0
 end
 
 return module

@@ -7,4 +7,8 @@ function module.chipid()
 	return module.ChipId
 end
 
+function module.heap()
+    return collectgarbage("count")
+end
+
 return module

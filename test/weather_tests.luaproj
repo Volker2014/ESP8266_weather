@@ -24,10 +24,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="adc_mock.lua" />
     <Compile Include="app_test.lua" />
     <Compile Include="bit_mock.lua" />
     <Compile Include="bmp085_mock.lua" />
     <Compile Include="bmp180_test.lua" />
+    <Compile Include="config_mock.lua" />
     <Compile Include="dht22_test.lua" />
     <Compile Include="dht_mock.lua" />
     <Compile Include="ds18b20_test.lua" />
@@ -42,6 +44,7 @@
     <Compile Include="net_mock.lua" />
     <Compile Include="node_mock.lua" />
     <Compile Include="ow_mock.lua" />
+    <Compile Include="ProFi.lua" />
     <Compile Include="rtctime_mock.lua" />
     <Compile Include="run_tests.lua" />
     <Compile Include="server_mock.lua" />

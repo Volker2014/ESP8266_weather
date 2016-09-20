@@ -14,7 +14,7 @@ function module.temperature()
 end
 
 function module.init(datapin, clockpin)
-    module.InitCall = true
+    module.InitCall = datapin ~= nil and clockpin ~= nil
 end
 
 return module

@@ -1,7 +1,7 @@
 -- file : wettercom.lua
 local module = {}
 
-_httpPrefix = ""
+local _httpPrefix = ""
 
 function module.send(temp, humi)
     local httpCall =  _httpPrefix ..

@@ -1,8 +1,8 @@
 -- file: wireless.lua
 local module = {}
 
-startFunc = nil
-wait_timer = 1
+local startFunc = nil
+local wait_timer = 1
 
 local function wifi_wait_ip()  
   if wifi.sta.getip() == nil then
