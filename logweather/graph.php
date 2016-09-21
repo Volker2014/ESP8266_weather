@@ -6,10 +6,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Mein Wetter</title>
     <script type="text/javascript" src="http://dygraphs.com/dygraph-combined.js"></script>
+    <script type="text/javascript" src="synchronizer.js"></script>
   </head>
 
   <body>
-    <div id="graphdiv"></div>
+    <div id="graphdiv1" style="width:900px; height:300px;"></div>
+    <div id="graphdiv2" style="width:900px; height:300px;"></div>
+    <div id="graphdiv3" style="width:900px; height:300px;"></div>
     <script type="text/javascript">
 <?php
     require("config.php");

@@ -32,7 +32,9 @@ local function setInterval(interval)
     if interval ~= nil then
         _timerInterval = interval * _oneSecond
         startLoop()
+        return true
     end
+    return false
 end
 
 local function setMqtt(offOn)
@@ -50,20 +52,25 @@ local function setWettercom(offOn)
     if offOn == "on" then
         _wettercom = require("wettercom")
         _wettercom.start(_wettercomData)
+        return true
     elseif  offOn == "off" and _wettercom ~= nil then
         _wettercom = nil
         collectgarbage()
+        return true
     end
+    return false
 end
 
 local function setLogscript(script)
     if script ~= nil then
         _weblogscript = script
+        return true
     end
+    return false
 end
 
 local function sendConfig(config, conn)
-    if config ~= nil then
+    if config then
         local message = "Interval: "..(_timerInterval/_oneSecond)
         if _mqttclient ~= nil then
             message = message .. ", Mqtt connected: " .. tostring(_mqttclient.Connected)
@@ -93,6 +100,7 @@ print(data.name,data.filename,data.content)
     file.open(data.filename, "w+")
     file.write(data.content)
     file.close()
+    node.restart()
 end
 
 function module.send_data()  
@@ -149,11 +157,11 @@ function module.receiveRequest(conn, request)
     if method ~= nil then
         if method == "GET" then
             if checkNode(uri.args["node"]) then
-                setInterval(uri.args["interval"])
-                setMqtt(uri.args["mqtt"])
-                setWettercom(uri.args["wettercom"])
-                setLogscript(uri.args["logscript"])
-                ignoreSend = sendConfig(uri.args["config"], conn)
+                ignoreSend = ignoreSend or setInterval(uri.args["interval"])
+                ignoreSend = ignoreSend or setMqtt(uri.args["mqtt"])
+                ignoreSend = ignoreSend or setWettercom(uri.args["wettercom"])
+                ignoreSend = ignoreSend or setLogscript(uri.args["logscript"])
+                ignoreSend = sendConfig(uri.args["config"] ~= nil or ignoreSend, conn)
             end
         elseif method == "POST" then
             if checkNode(uri.args["node"]) then
