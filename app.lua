@@ -187,11 +187,11 @@ function module.receiveRequest(conn, request)
 end
 
 function module.sendHtml(conn)
-    local valid_dht22, dht22Temp, dht22Hmui, dht22Message = _dht22.read("Temperature: %s, Humidity: %s")
-    local valid_ds18b20, ds18b20Temp, ds18b20Message = _ds18b20.read("Pooltemp: %s")
-    local valid_bmp180, bmp180Temp, bmp180Pressure, bmp180Message = _bmp180.read("BoxTemperature: %s, Pressure: %s")
-    local valid_Vdd33, vdd33Vdd, vdd33Message = vdd33.read("Vdd: %s")
     local delimeter = "<br/>"
+    local valid_dht22, dht22Temp, dht22Hmui, dht22Message = _dht22.read("Temperature: %s" .. delimeter .. "Humidity: %s")
+    local valid_ds18b20, ds18b20Temp, ds18b20Message = _ds18b20.read("Pooltemp: %s")
+    local valid_bmp180, bmp180Temp, bmp180Pressure, bmp180Message = _bmp180.read("BoxTemperature: %s" .. delimeter .. "Pressure: %s")
+    local valid_Vdd33, vdd33Vdd, vdd33Message = vdd33.read("Vdd: %s")
     local message = "<html><body><div>"
     message = message .. "Date: "..time.now()
     message = message .. delimeter .. dht22Message
