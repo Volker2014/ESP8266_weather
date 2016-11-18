@@ -30,6 +30,7 @@
     <Compile Include="httprequest.lua" />
     <Compile Include="lcdHD44780.lua" />
     <Compile Include="mqttclient.lua" />
+    <Compile Include="motor28byj.lua" />
     <Compile Include="time.lua" />
     <Compile Include="vdd33.lua" />
     <Compile Include="webserver.lua" />

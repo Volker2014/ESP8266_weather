@@ -71,18 +71,21 @@ end
 
 local function sendConfig(config, conn)
     if config then
-        local message = "Interval: "..(_timerInterval/_oneSecond)
+        local delimeter = "<br/>"
+        local message = "<html><body><div>"
+        message = message .. "Interval: "..(_timerInterval/_oneSecond)
         if _mqttclient ~= nil then
-            message = message .. ", Mqtt connected: " .. tostring(_mqttclient.Connected)
+            message = message .. delimeter .. "Mqtt connected: " .. tostring(_mqttclient.Connected)
         else
-            message = message .. ", Mqtt off"
+            message = message .. delimeter .. "Mqtt off"
         end
         if _wettercom ~= nil then
-            message = message .. ", Wetter.com: on"
+            message = message .. delimeter .. "Wetter.com: on"
         else
-            message = message .. ", Wetter.com: off"
+            message = message .. delimeter .. "Wetter.com: off"
         end
-        message = message .. ", logscript: " .. _weblogscript
+        message = message .. delimeter .. "logscript: " .. _weblogscript
+        message = message .. "</div></body></html>"
         conn:send(message)
         return true
     end
@@ -188,12 +191,15 @@ function module.sendHtml(conn)
     local valid_ds18b20, ds18b20Temp, ds18b20Message = _ds18b20.read("Pooltemp: %s")
     local valid_bmp180, bmp180Temp, bmp180Pressure, bmp180Message = _bmp180.read("BoxTemperature: %s, Pressure: %s")
     local valid_Vdd33, vdd33Vdd, vdd33Message = vdd33.read("Vdd: %s")
-    local message = "Date: "..time.now()
-    message = message .. ", " .. dht22Message
-    message = message .. ", " .. ds18b20Message
-    message = message .. ", " .. bmp180Message
-    message = message .. ", " .. vdd33Message
-    message = message .. ", Heap: " .. node.heap()
+    local delimeter = "<br/>"
+    local message = "<html><body><div>"
+    message = message .. "Date: "..time.now()
+    message = message .. delimeter .. dht22Message
+    message = message .. delimeter .. ds18b20Message
+    message = message .. delimeter .. bmp180Message
+    message = message .. delimeter .. vdd33Message
+    message = message .. delimeter .. "Heap: " .. node.heap()
+    message = message .. "</div></bod<</html>"
     conn:send(message)
     message = nil
     collectgarbage()
