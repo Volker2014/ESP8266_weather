@@ -93,7 +93,6 @@ local function sendConfig(config, conn)
 end
 
 local function writeFile(data)
-print(data.name,data.filename,data.content)
     if data.name ~= "upload" or 
        data.filename == nil or 
        data.content == nil then
@@ -170,12 +169,12 @@ function module.receiveRequest(conn, request)
             if checkNode(uri.args["node"]) then
                 _uploadBoundary = getRequestData()
             end
-        elseif _uploadBoundary ~= nil then
-            local data = getRequestData()
-            writeFile(data)
-            _uploadBoundary = nil
-            collectgarbage()
         end
+    elseif _uploadBoundary ~= nil then
+        local data = getRequestData()
+        writeFile(data)
+        _uploadBoundary = nil
+        collectgarbage()
     end
     method = nil
     uri = nil

@@ -5,40 +5,28 @@
 
 local module = {}
 
-local function parseArgs(args, pattern)
-   local r = {}
-   if args == nil or args == "" then return r end
-   for arg in args:gmatch("([^&]+)") do
-      local name, value = arg:match("(.*)=[\"]*(.*)[\"]*")
-      if name ~= nil then 
-        r[name] = value:gsub("%+", " "):gsub("%%(%x%x)", 
-                                            function (x)
-                                                return string.char(tonumber(x, 16))
-                                            end) 
-        --print("Parsed: " .. name .. " => " .. value)
-    end
-   end
-   return r
-end
-
-
-local function parseBoundaryFormData(payload, content, boundary)
+local function parseBoundaryFormData(payload, boundary)
+   local data = {}
    local dispoStart = payload:find("Content-Disposition", 1, true)
    local dispoEnd = payload:find("\r\n", dispoStart, true)
    local disposition = payload:sub(dispoStart, dispoEnd)
-   disposition = disposition:match("Content%-Disposition: form%-data;(.*)")
+   _, _, disposition = disposition:find("Content%-Disposition: form%-data;(.+)")
+   if disposition ~= nil then
+       for k, v in disposition:gmatch('(%w+)="([%p%w]+)";*') do
+           data[k] = v
+       end
+   end
    ---print("disposition: ["..disposition.."]")
-   local data = parseArgs(disposition, "([^=%s;]+=[^;]+)")
-   local boundaryEnd = content:find(boundary, 1, true)
-   data["content"] = content:sub(3, boundaryEnd-3)
-   --print(data.name,data.filename,data.content)
+   local contentStart = payload:find("\r\n\r\n", 1, true)
+   local contentEnd = payload:find(boundary, contentStart, true)
+   data["content"] = payload:sub(contentStart, contentEnd-3)
+   --print("!",data.name,data.filename,data.content, "!")
    return data
 end
 
 local function getRequestData(payload, boundary)
    local requestData
    return function ()
-      --print("Getting Request Data")
       if requestData then
          return requestData
       else
@@ -46,19 +34,13 @@ local function getRequestData(payload, boundary)
          --print("payload = [" .. payload .. "]")
          --print("payloadlen = [" .. #payload .. "]")
          local mimeType = payload:match("Content%-Type: ([%w/-]+)")
-         local bodyStart = payload:find("\r\n\r\n", 1, true)
-         local body = payload:sub(bodyStart, #payload)
          --print("mimeType = [" .. mimeType .. "]")
-         --print("bodyStart = [" .. bodyStart .. "]")
-         --print("body = [" .. body .. "]")
-         if mimeType == "application/x-www-form-urlencoded" then
-            requestData = parseArgs(body, "%s*&?([^=]+=[^&]+)")
-         elseif mimeType == "multipart/form-data" then
+         if mimeType == "multipart/form-data" then
            requestData = payload:match("Content%-Type: multipart/form%-data; boundary=([%w/-]+)")
            --print("boundary: ["..requestData.."]")
          elseif boundary ~= nil then
             if payload:sub(3, #boundary+2) == boundary then
-                requestData = parseBoundaryFormData(payload, body, boundary)
+                requestData = parseBoundaryFormData(payload, boundary)
             else
                 requestData = {}
             end
@@ -72,35 +54,20 @@ local function getRequestData(payload, boundary)
    end
 end
 
-local function parseUri(uri)
+local function parseUri(request)
+   local _, _, method, path, vars = request:find("([A-Z]+) (.+)?(.+) HTTP/[1-9]+.[0-9]+");
+   if(method == nil)then
+       _, _, method, path = request:find("([A-Z]+) (.+) HTTP/[1-9]+.[0-9]+");
+   end
    local r = {}
-   local filename
-   local ext
-   local fullExt = {}
-
-   if uri == nil then return r end
-   if uri == "/" then uri = "/index.html" end
-   questionMarkPos, b, c, d, e, f = uri:find("?")
-   if questionMarkPos == nil then
-      r.file = uri:sub(1, questionMarkPos)
-      r.args = {}
-   else
-      r.file = uri:sub(1, questionMarkPos - 1)
-      r.args = parseArgs(uri:sub(questionMarkPos+1, #uri), "([^&]+)")
+   r.method = method
+   r.file = path
+   r.args = {}
+   if vars ~= nil then
+       for k, v in string.gmatch(vars, "(%w+)=(%w+)&*") do
+           r.args[k] = v
+       end
    end
-   filename = r.file
-   while filename:match("%.") do
-      filename,ext = filename:match("(.+)%.(.+)")
-      table.insert(fullExt,1,ext)
-   end
-   if #fullExt > 1 and fullExt[#fullExt] == 'gz' then
-      r.ext = fullExt[#fullExt-1]
-      r.isGzipped = true
-   elseif #fullExt >= 1 then
-      r.ext = fullExt[#fullExt]
-   end
-   r.isScript = r.ext == "lua" or r.ext == "lc"
-   r.file = "http/" .. r.file:sub(2, -1)
    return r
 end
 
@@ -108,13 +75,9 @@ end
 -- the server needs to know about the uri.
 function module.parse(request, boundary)
    --print("Request: \n", request)  
-   local e = request:find("\r\n", 1, true)
-   if not e then return nil end
-   local line = request:sub(1, e - 1)
-   local _, i, method, request = line:find("^([A-Z]+) (.-) HTTP/[1-9]+.[0-9]+$")
    local uri = parseUri(request)
    local getRequestData = getRequestData(request, boundary)
-   return method, uri, getRequestData
+   return uri.method, uri, getRequestData
 end
 
 return module
